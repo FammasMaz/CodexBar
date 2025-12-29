@@ -61,6 +61,7 @@ public enum ProviderDescriptorRegistry {
         _ = ProviderDescriptorRegistry.register(GeminiProviderDescriptor.descriptor)
         _ = ProviderDescriptorRegistry.register(AntigravityProviderDescriptor.descriptor)
         _ = ProviderDescriptorRegistry.register(CopilotProviderDescriptor.descriptor)
+        _ = ProviderDescriptorRegistry.register(LLMProxyDescriptor.descriptor)
     }()
 
     private static func ensureBootstrapped() {

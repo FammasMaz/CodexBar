@@ -708,9 +708,10 @@ extension UsageMenuCardView.Model {
         let zaiUsage = input.provider == .zai ? snapshot.zaiUsage : nil
         let zaiTokenDetail = Self.zaiLimitDetailText(limit: zaiUsage?.tokenLimit)
         let zaiTimeDetail = Self.zaiLimitDetailText(limit: zaiUsage?.timeLimit)
+        let primaryTitle = snapshot.primary.label ?? input.metadata.sessionLabel
         metrics.append(Metric(
             id: "primary",
-            title: input.metadata.sessionLabel,
+            title: primaryTitle,
             percent: Self.clamped(
                 input.usageBarsShowUsed ? snapshot.primary.usedPercent : snapshot.primary.remainingPercent),
             percentStyle: percentStyle,
@@ -718,18 +719,20 @@ extension UsageMenuCardView.Model {
             detailText: input.provider == .zai ? zaiTokenDetail : nil))
         if let weekly = snapshot.secondary {
             let paceText = UsagePaceText.weekly(provider: input.provider, window: weekly, now: input.now)
+            let secondaryTitle = weekly.label ?? input.metadata.weeklyLabel
             metrics.append(Metric(
                 id: "secondary",
-                title: input.metadata.weeklyLabel,
+                title: secondaryTitle,
                 percent: Self.clamped(input.usageBarsShowUsed ? weekly.usedPercent : weekly.remainingPercent),
                 percentStyle: percentStyle,
                 resetText: Self.resetText(for: weekly, prefersCountdown: true),
                 detailText: input.provider == .zai ? zaiTimeDetail : paceText))
         }
         if input.metadata.supportsOpus, let opus = snapshot.tertiary {
+            let tertiaryTitle = opus.label ?? input.metadata.opusLabel ?? "Sonnet"
             metrics.append(Metric(
                 id: "tertiary",
-                title: input.metadata.opusLabel ?? "Sonnet",
+                title: tertiaryTitle,
                 percent: Self.clamped(input.usageBarsShowUsed ? opus.usedPercent : opus.remainingPercent),
                 percentStyle: percentStyle,
                 resetText: Self.resetText(for: opus, prefersCountdown: true),

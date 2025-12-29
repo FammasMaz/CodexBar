@@ -6,12 +6,15 @@ public struct RateWindow: Codable, Equatable, Sendable {
     public let resetsAt: Date?
     /// Optional textual reset description (used by Claude CLI UI scrape).
     public let resetDescription: String?
+    /// Optional custom label to override the metadata label (e.g., "Claude" instead of "Quota").
+    public let label: String?
 
-    public init(usedPercent: Double, windowMinutes: Int?, resetsAt: Date?, resetDescription: String?) {
+    public init(usedPercent: Double, windowMinutes: Int?, resetsAt: Date?, resetDescription: String?, label: String? = nil) {
         self.usedPercent = usedPercent
         self.windowMinutes = windowMinutes
         self.resetsAt = resetsAt
         self.resetDescription = resetDescription
+        self.label = label
     }
 
     public var remainingPercent: Double {

@@ -42,7 +42,10 @@ struct ProviderRegistry {
                                 usageDataSource: settings.claudeUsageDataSource,
                                 webExtrasEnabled: settings.claudeWebExtrasEnabled),
                             zai: ProviderSettingsSnapshot.ZaiProviderSettings(),
-                            copilot: ProviderSettingsSnapshot.CopilotProviderSettings())
+                            copilot: ProviderSettingsSnapshot.CopilotProviderSettings(),
+                            llmProxy: ProviderSettingsSnapshot.LLMProxyProviderSettings(
+                                proxyURL: settings.llmProxyURL.isEmpty ? nil : settings.llmProxyURL,
+                                apiKey: settings.llmProxyAPIKey.isEmpty ? nil : settings.llmProxyAPIKey))
                     }
                     let context = ProviderFetchContext(
                         runtime: .app,

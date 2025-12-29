@@ -24,6 +24,8 @@ public enum ProviderTokenResolver {
     private static let keychainService = "com.steipete.CodexBar"
     private static let zaiAccount = "zai-api-token"
     private static let copilotAccount = "copilot-api-token"
+    private static let llmProxyURLAccount = "llmproxy-url"
+    private static let llmProxyAPIKeyAccount = "llmproxy-api-key"
 
     public static func zaiToken(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
         self.zaiResolution(environment: environment)?.token
@@ -31,6 +33,14 @@ public enum ProviderTokenResolver {
 
     public static func copilotToken(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
         self.copilotResolution(environment: environment)?.token
+    }
+
+    public static func llmProxyURL(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+        self.llmProxyURLResolution(environment: environment)?.token
+    }
+
+    public static func llmProxyAPIKey(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+        self.llmProxyAPIKeyResolution(environment: environment)?.token
     }
 
     public static func zaiResolution(
@@ -53,6 +63,30 @@ public enum ProviderTokenResolver {
         }
         if let token = self.cleaned(environment["COPILOT_API_TOKEN"]) {
             return ProviderTokenResolution(token: token, source: .environment)
+        }
+        return nil
+    }
+
+    public static func llmProxyURLResolution(
+        environment: [String: String] = ProcessInfo.processInfo.environment) -> ProviderTokenResolution?
+    {
+        if let url = self.keychainToken(service: self.keychainService, account: self.llmProxyURLAccount) {
+            return ProviderTokenResolution(token: url, source: .keychain)
+        }
+        if let url = LLMProxySettingsReader.proxyURL(environment: environment) {
+            return ProviderTokenResolution(token: url, source: .environment)
+        }
+        return nil
+    }
+
+    public static func llmProxyAPIKeyResolution(
+        environment: [String: String] = ProcessInfo.processInfo.environment) -> ProviderTokenResolution?
+    {
+        if let key = self.keychainToken(service: self.keychainService, account: self.llmProxyAPIKeyAccount) {
+            return ProviderTokenResolution(token: key, source: .keychain)
+        }
+        if let key = LLMProxySettingsReader.apiKey(environment: environment) {
+            return ProviderTokenResolution(token: key, source: .environment)
         }
         return nil
     }

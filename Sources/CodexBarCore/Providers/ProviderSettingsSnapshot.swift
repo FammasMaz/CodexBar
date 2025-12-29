@@ -27,23 +27,36 @@ public struct ProviderSettingsSnapshot: Sendable {
         public init() {}
     }
 
+    public struct LLMProxyProviderSettings: Sendable {
+        public let proxyURL: String?
+        public let apiKey: String?
+
+        public init(proxyURL: String?, apiKey: String?) {
+            self.proxyURL = proxyURL
+            self.apiKey = apiKey
+        }
+    }
+
     public let debugMenuEnabled: Bool
     public let codex: CodexProviderSettings?
     public let claude: ClaudeProviderSettings?
     public let zai: ZaiProviderSettings?
     public let copilot: CopilotProviderSettings?
+    public let llmProxy: LLMProxyProviderSettings?
 
     public init(
         debugMenuEnabled: Bool,
         codex: CodexProviderSettings?,
         claude: ClaudeProviderSettings?,
         zai: ZaiProviderSettings?,
-        copilot: CopilotProviderSettings?)
+        copilot: CopilotProviderSettings?,
+        llmProxy: LLMProxyProviderSettings? = nil)
     {
         self.debugMenuEnabled = debugMenuEnabled
         self.codex = codex
         self.claude = claude
         self.zai = zai
         self.copilot = copilot
+        self.llmProxy = llmProxy
     }
 }

@@ -11,6 +11,7 @@ public enum UsageProvider: String, CaseIterable, Sendable, Codable {
     case antigravity
     case copilot
     case zai
+    case llmProxy
 }
 
 // swiftformat:enable sortDeclarations
@@ -25,6 +26,7 @@ public enum IconStyle: Sendable {
     case factory
     case copilot
     case combined
+    case llmProxy
 }
 
 public struct ProviderMetadata: Sendable {

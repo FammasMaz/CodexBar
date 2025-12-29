@@ -306,6 +306,7 @@ final class UsageStore {
         case .cursor: self.cursorVersion
         case .factory: nil
         case .copilot: nil
+        case .llmProxy: nil
         }
     }
 
@@ -1217,6 +1218,10 @@ extension UsageStore {
             case .copilot:
                 let text = "Copilot debug log not yet implemented"
                 await MainActor.run { self.probeLogs[.copilot] = text }
+                return text
+            case .llmProxy:
+                let text = "LLM Proxy debug log not yet implemented"
+                await MainActor.run { self.probeLogs[.llmProxy] = text }
                 return text
             }
         }.value

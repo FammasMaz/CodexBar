@@ -43,6 +43,7 @@ enum ProviderChoice: String, AppEnum {
         case .zai: self = .zai
         case .factory: return nil // Factory not yet supported in widgets
         case .copilot: self = .copilot
+        case .llmProxy: return nil // LLMProxy not yet supported in widgets
         }
     }
 }

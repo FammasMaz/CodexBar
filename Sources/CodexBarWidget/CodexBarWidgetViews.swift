@@ -265,6 +265,7 @@ private struct ProviderSwitchChip: View {
         case .zai: "z.ai"
         case .factory: "Droid"
         case .copilot: "Copilot"
+        case .llmProxy: "Proxy"
         }
     }
 }
@@ -575,6 +576,8 @@ enum WidgetColors {
             Color(red: 255 / 255, green: 107 / 255, blue: 53 / 255) // Factory orange
         case .copilot:
             Color(red: 168 / 255, green: 85 / 255, blue: 247 / 255) // Purple
+        case .llmProxy:
+            Color(red: 100 / 255, green: 149 / 255, blue: 237 / 255) // Cornflower blue
         }
     }
 }

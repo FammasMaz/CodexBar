@@ -159,6 +159,16 @@ final class SettingsStore {
         didSet { self.schedulePersistCopilotAPIToken() }
     }
 
+    /// LLM Proxy URL (stored in Keychain).
+    var llmProxyURL: String {
+        didSet { self.schedulePersistLLMProxyURL() }
+    }
+
+    /// LLM Proxy API key (stored in Keychain).
+    var llmProxyAPIKey: String {
+        didSet { self.schedulePersistLLMProxyAPIKey() }
+    }
+
     private var selectedMenuProviderRaw: String? {
         didSet {
             if let raw = self.selectedMenuProviderRaw {
@@ -221,6 +231,8 @@ final class SettingsStore {
         _ = self.switcherShowsIcons
         _ = self.zaiAPIToken
         _ = self.copilotAPIToken
+        _ = self.llmProxyURL
+        _ = self.llmProxyAPIKey
         _ = self.debugLoadingPattern
         _ = self.selectedMenuProvider
         _ = self.providerToggleRevision
@@ -237,6 +249,9 @@ final class SettingsStore {
     @ObservationIgnored private var zaiTokenPersistTask: Task<Void, Never>?
     @ObservationIgnored private let copilotTokenStore: any CopilotTokenStoring
     @ObservationIgnored private var copilotTokenPersistTask: Task<Void, Never>?
+    @ObservationIgnored private let llmProxyTokenStore: any LLMProxyTokenStoring
+    @ObservationIgnored private var llmProxyURLPersistTask: Task<Void, Never>?
+    @ObservationIgnored private var llmProxyAPIKeyPersistTask: Task<Void, Never>?
     // Cache enablement so tight UI loops (menu bar animations) don't hit UserDefaults each tick.
     @ObservationIgnored private var cachedProviderEnablement: [UsageProvider: Bool] = [:]
     @ObservationIgnored private var cachedProviderEnablementRevision: Int = -1
@@ -251,11 +266,13 @@ final class SettingsStore {
     init(
         userDefaults: UserDefaults = .standard,
         zaiTokenStore: any ZaiTokenStoring = KeychainZaiTokenStore(),
-        copilotTokenStore: any CopilotTokenStoring = KeychainCopilotTokenStore())
+        copilotTokenStore: any CopilotTokenStoring = KeychainCopilotTokenStore(),
+        llmProxyTokenStore: any LLMProxyTokenStoring = KeychainLLMProxyTokenStore())
     {
         self.userDefaults = userDefaults
         self.zaiTokenStore = zaiTokenStore
         self.copilotTokenStore = copilotTokenStore
+        self.llmProxyTokenStore = llmProxyTokenStore
         self.providerOrderRaw = userDefaults.stringArray(forKey: "providerOrder") ?? []
         let raw = userDefaults.string(forKey: "refreshFrequency") ?? RefreshFrequency.fiveMinutes.rawValue
         self.refreshFrequency = RefreshFrequency(rawValue: raw) ?? .fiveMinutes
@@ -293,6 +310,8 @@ final class SettingsStore {
         self.switcherShowsIcons = userDefaults.object(forKey: "switcherShowsIcons") as? Bool ?? true
         self.zaiAPIToken = (try? zaiTokenStore.loadToken()) ?? ""
         self.copilotAPIToken = (try? copilotTokenStore.loadToken()) ?? ""
+        self.llmProxyURL = (try? llmProxyTokenStore.loadProxyURL()) ?? ""
+        self.llmProxyAPIKey = (try? llmProxyTokenStore.loadAPIKey()) ?? ""
         self.selectedMenuProviderRaw = userDefaults.string(forKey: "selectedMenuProvider")
         self.providerDetectionCompleted = userDefaults.object(
             forKey: "providerDetectionCompleted") as? Bool ?? false
@@ -570,6 +589,56 @@ final class SettingsStore {
             }.value
             if let error {
                 CodexBarLog.logger("copilot-token-store").error("Failed to persist Copilot token: \(error)")
+            }
+        }
+    }
+
+    private func schedulePersistLLMProxyURL() {
+        self.llmProxyURLPersistTask?.cancel()
+        let url = self.llmProxyURL
+        let tokenStore = self.llmProxyTokenStore
+        self.llmProxyURLPersistTask = Task { @MainActor in
+            do {
+                try await Task.sleep(nanoseconds: 350_000_000)
+            } catch {
+                return
+            }
+            guard !Task.isCancelled else { return }
+            let error: (any Error)? = await Task.detached(priority: .utility) { () -> (any Error)? in
+                do {
+                    try tokenStore.storeProxyURL(url)
+                    return nil
+                } catch {
+                    return error
+                }
+            }.value
+            if let error {
+                CodexBarLog.logger("llmproxy-token-store").error("Failed to persist LLM Proxy URL: \(error)")
+            }
+        }
+    }
+
+    private func schedulePersistLLMProxyAPIKey() {
+        self.llmProxyAPIKeyPersistTask?.cancel()
+        let key = self.llmProxyAPIKey
+        let tokenStore = self.llmProxyTokenStore
+        self.llmProxyAPIKeyPersistTask = Task { @MainActor in
+            do {
+                try await Task.sleep(nanoseconds: 350_000_000)
+            } catch {
+                return
+            }
+            guard !Task.isCancelled else { return }
+            let error: (any Error)? = await Task.detached(priority: .utility) { () -> (any Error)? in
+                do {
+                    try tokenStore.storeAPIKey(key)
+                    return nil
+                } catch {
+                    return error
+                }
+            }.value
+            if let error {
+                CodexBarLog.logger("llmproxy-token-store").error("Failed to persist LLM Proxy API key: \(error)")
             }
         }
     }
